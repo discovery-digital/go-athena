@@ -4,6 +4,8 @@ import (
 	"database/sql/driver"
 	"io"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/athena"
 	"github.com/aws/aws-sdk-go/service/athena/athenaiface"
@@ -107,7 +109,7 @@ func (r *rows) fetchNextPage(token *string) (bool, error) {
 		rowOffset = 1
 		r.skipHeaderRow = false
 	}
-
+	logrus.Debugf("queryId : %s :: resultset : %v ", r.queryID, r.out.ResultSet)
 	if len(r.out.ResultSet.Rows) < rowOffset+1 {
 		return false, nil
 	}

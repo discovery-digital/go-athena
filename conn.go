@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/athena"
 	"github.com/aws/aws-sdk-go/service/athena/athenaiface"
+	"github.com/sirupsen/logrus"
 )
 
 type conn struct {
@@ -42,7 +43,7 @@ func (c *conn) runQuery(ctx context.Context, query string) (driver.Rows, error) 
 	if err != nil {
 		return nil, err
 	}
-
+	logrus.Infof("executing query : %s :: with queryID : %s ", query, queryID)
 	if err := c.waitOnQuery(ctx, queryID); err != nil {
 		return nil, err
 	}
@@ -82,7 +83,7 @@ func (c *conn) waitOnQuery(ctx context.Context, queryID string) error {
 		if err != nil {
 			return err
 		}
-
+		logrus.Infof("queryID : %s :: query status %s ", queryID, *statusResp.QueryExecution.Status)
 		switch *statusResp.QueryExecution.Status.State {
 		case athena.QueryExecutionStateCancelled:
 			return context.Canceled
