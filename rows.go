@@ -2,7 +2,9 @@ package athena
 
 import (
 	"database/sql/driver"
+	"fmt"
 	"io"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 
@@ -10,6 +12,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/athena"
 	"github.com/aws/aws-sdk-go/service/athena/athenaiface"
 )
+
+var listOfFailedQueryResult = []string{
+	"FAILED:",
+	"Tables missing on filesystem:",
+}
 
 type rows struct {
 	athena  athenaiface.AthenaAPI
@@ -110,6 +117,12 @@ func (r *rows) fetchNextPage(token *string) (bool, error) {
 		r.skipHeaderRow = false
 	}
 	logrus.Debugf("queryId : %s :: resultset : %v ", r.queryID, r.out.ResultSet)
+
+	for _, failedSubstring := range listOfFailedQueryResult {
+		if strings.Contains(r.out.ResultSet.String(), failedSubstring) {
+			return false, fmt.Errorf("queryId : %s :: failed due to : %v  ", r.queryID, r.out.ResultSet.String())
+		}
+	}
 	if len(r.out.ResultSet.Rows) < rowOffset+1 {
 		return false, nil
 	}
