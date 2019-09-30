@@ -119,7 +119,7 @@ func (r *rows) fetchNextPage(token *string) (bool, error) {
 	logrus.Debugf("queryId : %s :: resultset : %v ", r.queryID, r.out.ResultSet)
 
 	for _, failedSubstring := range listOfFailedQueryResult {
-		if strings.Contains(r.out.ResultSet.String(), failedSubstring) {
+		if len(r.out.ResultSet.Rows) > 0 && strings.Contains(r.out.ResultSet.Rows[0].String(), failedSubstring) {
 			return false, fmt.Errorf("queryId : %s :: failed due to : %v  ", r.queryID, r.out.ResultSet.String())
 		}
 	}

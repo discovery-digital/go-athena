@@ -83,6 +83,7 @@ func (c *conn) waitOnQuery(ctx context.Context, queryID string) error {
 		if err != nil {
 			return err
 		}
+
 		logrus.Infof("queryID : %s :: query status %s ", queryID, *statusResp.QueryExecution.Status)
 		switch *statusResp.QueryExecution.Status.State {
 		case athena.QueryExecutionStateCancelled:
